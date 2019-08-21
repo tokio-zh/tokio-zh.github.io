@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>直接使用AsyncRead和AsyncWrite | Tokio中文</title>
+    <meta name="description" content="Tokio：Rust编程语言的异步运行时,提供异步事件驱动平台，构建快速，可靠和轻量级网络应用。利用Rust的所有权和并发模型确保线程安全">
+    <link rel="icon" href="/favicon.ico">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#3eaf7c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon-152x152.png">
+  <meta name="msapplication-TileImage" content="/icons/msapplication-icon-144x144.png">
+  <meta name="msapplication-TileColor" content="#000000">
+    
+    <link rel="preload" href="/assets/css/styles.8bade797.css" as="style"><link rel="preload" href="/assets/js/app.8bade797.js" as="script"><link rel="preload" href="/assets/js/40.0122edd7.js" as="script"><link rel="prefetch" href="/assets/css/1.styles.729a41a7.css"><link rel="prefetch" href="/assets/css/2.styles.6f2df653.css"><link rel="prefetch" href="/assets/js/1.729a41a7.js"><link rel="prefetch" href="/assets/js/10.f4dee4dc.js"><link rel="prefetch" href="/assets/js/11.0a79d276.js"><link rel="prefetch" href="/assets/js/12.9a1ecca2.js"><link rel="prefetch" href="/assets/js/13.f323aedb.js"><link rel="prefetch" href="/assets/js/14.f94ed1c8.js"><link rel="prefetch" href="/assets/js/15.2e17eed0.js"><link rel="prefetch" href="/assets/js/16.5f7f0fb0.js"><link rel="prefetch" href="/assets/js/17.a804f778.js"><link rel="prefetch" href="/assets/js/18.917a7b15.js"><link rel="prefetch" href="/assets/js/19.515a2278.js"><link rel="prefetch" href="/assets/js/2.6f2df653.js"><link rel="prefetch" href="/assets/js/20.773272da.js"><link rel="prefetch" href="/assets/js/21.40aff844.js"><link rel="prefetch" href="/assets/js/22.0786618d.js"><link rel="prefetch" href="/assets/js/23.c63536e4.js"><link rel="prefetch" href="/assets/js/24.9c06a2f7.js"><link rel="prefetch" href="/assets/js/25.4a194b57.js"><link rel="prefetch" href="/assets/js/26.40c11936.js"><link rel="prefetch" href="/assets/js/27.9e35a1f5.js"><link rel="prefetch" href="/assets/js/28.f007bc19.js"><link rel="prefetch" href="/assets/js/29.b2b6291e.js"><link rel="prefetch" href="/assets/js/3.6ae31a5f.js"><link rel="prefetch" href="/assets/js/30.f37829da.js"><link rel="prefetch" href="/assets/js/31.a71b9216.js"><link rel="prefetch" href="/assets/js/32.33337511.js"><link rel="prefetch" href="/assets/js/33.2eb4488f.js"><link rel="prefetch" href="/assets/js/34.967d43ee.js"><link rel="prefetch" href="/assets/js/35.95be69d9.js"><link rel="prefetch" href="/assets/js/36.9c0eb4ef.js"><link rel="prefetch" href="/assets/js/37.8fba8c6a.js"><link rel="prefetch" href="/assets/js/38.6f18dc3e.js"><link rel="prefetch" href="/assets/js/39.1064e57f.js"><link rel="prefetch" href="/assets/js/4.4178ba81.js"><link rel="prefetch" href="/assets/js/41.c85cb408.js"><link rel="prefetch" href="/assets/js/42.f08452f5.js"><link rel="prefetch" href="/assets/js/43.923b63dc.js"><link rel="prefetch" href="/assets/js/44.fe42b200.js"><link rel="prefetch" href="/assets/js/45.fbe2b9fb.js"><link rel="prefetch" href="/assets/js/5.9ab7d2a6.js"><link rel="prefetch" href="/assets/js/6.e89b2efe.js"><link rel="prefetch" href="/assets/js/7.2ef1920d.js"><link rel="prefetch" href="/assets/js/8.60746b2b.js"><link rel="prefetch" href="/assets/js/9.740f1fa8.js">
+    <link rel="stylesheet" href="/assets/css/styles.8bade797.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">Tokio中文</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/document/" class="nav-link router-link-active">文档</a></div><div class="nav-item"><a href="/community/" class="nav-link">社区</a></div><div class="nav-item"><a href="/blog/" class="nav-link">博客</a></div><div class="nav-item"><a href="https://rustlang-cn.org/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Rust中文
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div><div class="nav-item"><a href="https://tokio.rs" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  英文
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <a href="https://github.com/tokio-zh/tokio-zh" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav></div></header> <div class="sidebar-mask"></div> <div class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/document/" class="nav-link router-link-active">文档</a></div><div class="nav-item"><a href="/community/" class="nav-link">社区</a></div><div class="nav-item"><a href="/blog/" class="nav-link">博客</a></div><div class="nav-item"><a href="https://rustlang-cn.org/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Rust中文
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div><div class="nav-item"><a href="https://tokio.rs" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  英文
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <a href="https://github.com/tokio-zh/tokio-zh" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav> <div class="carbon-ads"></div> <ul class="sidebar-links"><li><a href="/document/" class="sidebar-link">何为Tokio</a></li><li><div class="sidebar-group"><p class="sidebar-heading"><span>开始</span> <!----></p> <ul class="sidebar-group-items"><li><a href="/document/getting-started/hello-world.html" class="sidebar-link">Hello World</a></li><li><a href="/document/getting-started/futures.html" class="sidebar-link">Futures</a></li><li><a href="/document/getting-started/runtime.html" class="sidebar-link">运行时</a></li><li><a href="/document/getting-started/echo.html" class="sidebar-link">示例：Echo服务器</a></li></ul></div></li><li><div class="sidebar-group"><p class="sidebar-heading open"><span>Tokio与I/O</span> <!----></p> <ul class="sidebar-group-items"><li><a href="/document/io/overview.html" class="sidebar-link">I/O概叙</a></li><li><a href="/document/io/reading_writing_data.html" class="sidebar-link">读写数据</a></li><li><a href="/document/io/poll.html" class="sidebar-link">Poll（轮询）APIs</a></li><li><a href="/document/io/async_read_write.html" class="active sidebar-link">直接使用AsyncRead和AsyncWrite</a></li><li><a href="/document/io/filesystem.html" class="sidebar-link">文件系统APIs</a></li><li><a href="/document/io/datagrams.html" class="sidebar-link">Datagram APIs</a></li></ul></div></li><li><div class="sidebar-group"><p class="sidebar-heading"><span>Futures-Streams-Sinks</span> <!----></p> <ul class="sidebar-group-items"><li><a href="/document/futures-streams-sinks/overview.html" class="sidebar-link">概叙</a></li><li><a href="/document/futures-streams-sinks/futures.html" class="sidebar-link">使用Future</a></li><li><a href="/document/futures-streams-sinks/streams.html" class="sidebar-link">使用Stream</a></li><li><a href="/document/futures-streams-sinks/sink.html" class="sidebar-link">使用Sink</a></li><li><a href="/document/futures-streams-sinks/putting-it-together.html" class="sidebar-link">结合在一起</a></li></ul></div></li><li><div class="sidebar-group"><p class="sidebar-heading"><span>深入</span> <!----></p> <ul class="sidebar-group-items"><li><a href="/document/going-deeper/futures.html" class="sidebar-link">Futures</a></li><li><a href="/document/going-deeper/tasks.html" class="sidebar-link">任务</a></li><li><a href="/document/going-deeper/runtime-model.html" class="sidebar-link">运行时模型</a></li><li><a href="/document/going-deeper/io.html" class="sidebar-link">Tokio与I/O</a></li><li><a href="/document/going-deeper/chat.html" class="sidebar-link">示例：聊天服务器</a></li><li><a href="/document/going-deeper/timers.html" class="sidebar-link">Timers</a></li><li><a href="/document/going-deeper/futures-mechanics.html" class="sidebar-link">基础组合器</a></li><li><a href="/document/going-deeper/returning.html" class="sidebar-link">返回Futures</a></li><li><a href="/document/going-deeper/frames.html" class="sidebar-link">使用构建流</a></li><li><a href="/document/going-deeper/building-runtime.html" class="sidebar-link">构建一个运行时</a></li></ul></div></li><li><div class="sidebar-group"><p class="sidebar-heading"><span>内部原理</span> <!----></p> <ul class="sidebar-group-items"><li><a href="/document/internals/intro.html" class="sidebar-link">介绍</a></li><li><a href="/document/internals/runtime-model.html" class="sidebar-link">运行时模型</a></li><li><a href="/document/internals/net.html" class="sidebar-link">非阻塞I/O</a></li></ul></div></li><li><a href="/document/api.html" class="sidebar-link">API文档</a></li></ul> </div> <div class="page"> <div class="content"><h1 id="直接使用asyncread和asyncwrite"><a href="#直接使用asyncread和asyncwrite" aria-hidden="true" class="header-anchor">#</a> 直接使用AsyncRead和AsyncWrite</h1> <p>到目前为止，我们都是在Tokio提供的I/O组合器场景下讨论了<code>AsyncRead</code>和<code>AsyncWrite</code>。通常这些就够了，但有时您需要实现自己的组合器，直接执行异步读写。</p> <h2 id="用asyncread读取数据"><a href="#用asyncread读取数据" aria-hidden="true" class="header-anchor">#</a> 用<code>AsyncRead</code>读取数据</h2> <p><code>AsyncRead</code>的核心是<code>poll_read</code>方法。该方法检查<code>Err</code>类型是否为<code>WouldBlock</code>，如果是，表明I/O <code>read</code>操作可能被阻塞的，则返回<code>NotReady</code>，这就使我们可以与futures互操作。当你写一个内部包含<code>AsyncRead</code>的Future（或类似的东西，例如<code>Stream</code>）时，<code>poll_read</code> 很可能就是你将要与之交互的方法。</p> <p>要记住一点：<code>poll_read</code>遵循与<code>Future::poll</code>相同的契约。具体而言，你不能返回<code>NotReady</code>，除非你已安排当前任务在取得进展时，会被通知再次被调用。基于此，我们可以在自己futures的<code>poll</code>方法内调用<code>poll_read</code>; 当我们从<code>poll_read</code>中转发一个<code>NotReady</code>的时候，我们知道这是遵循<code>poll</code>合约的，因为<code>poll_read</code>遵循相同的合约。</p> <p>Tokio用于确保<code>poll_read</code>以后通知当前<ruby>任务<rt>task</rt></ruby>的确切机制不在本节讨论的范围，但如果您感兴趣，可以在Tokio内部原理的<a href="../internals">非阻塞I/O</a>中阅读更多相关内容。</p> <p>有了这一切，让我们看看如何自己实现<code>read_exact</code> 这个方法！</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token attribute attr-name">#[macro_use]</span>
+<span class="token keyword">extern</span> <span class="token keyword">crate</span> futures<span class="token punctuation">;</span>
+<span class="token keyword">use</span> std<span class="token punctuation">::</span>io<span class="token punctuation">;</span>
+<span class="token keyword">use</span> tokio<span class="token punctuation">::</span>prelude<span class="token punctuation">::</span><span class="token operator">*</span><span class="token punctuation">;</span>
+
+<span class="token comment">// This is going to be our Future.</span>
+<span class="token comment">// In the common case, this is set to Some(Reading),</span>
+<span class="token comment">// but we'll set it to None when we return Async::Ready</span>
+<span class="token comment">// so that we can return the reader and the buffer.</span>
+<span class="token keyword">struct</span> ReadExact<span class="token operator">&lt;</span>R<span class="token punctuation">,</span> T<span class="token operator">&gt;</span><span class="token punctuation">(</span>Option<span class="token operator">&lt;</span>Reading<span class="token operator">&lt;</span>R<span class="token punctuation">,</span> T<span class="token operator">&gt;&gt;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">struct</span> Reading<span class="token operator">&lt;</span>R<span class="token punctuation">,</span> T<span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// This is the stream we're reading from.</span>
+    reader<span class="token punctuation">:</span> R<span class="token punctuation">,</span>
+    <span class="token comment">// This is the buffer we're reading into.</span>
+    buffer<span class="token punctuation">:</span> T<span class="token punctuation">,</span>
+    <span class="token comment">// And this is how far into the buffer we've written.</span>
+    pos<span class="token punctuation">:</span> usize<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// We want to be able to construct a ReadExact over anything</span>
+<span class="token comment">// that implements AsyncRead, and any buffer that can be</span>
+<span class="token comment">// thought of as a &amp;mut [u8].</span>
+<span class="token keyword">fn</span> read_exact<span class="token operator">&lt;</span>R<span class="token punctuation">,</span> T<span class="token operator">&gt;</span><span class="token punctuation">(</span>reader<span class="token punctuation">:</span> R<span class="token punctuation">,</span> buffer<span class="token punctuation">:</span> T<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> ReadExact<span class="token operator">&lt;</span>R<span class="token punctuation">,</span> T<span class="token operator">&gt;</span>
+<span class="token keyword">where</span>
+    R<span class="token punctuation">:</span> AsyncRead<span class="token punctuation">,</span>
+    T<span class="token punctuation">:</span> AsMut<span class="token operator">&lt;</span><span class="token punctuation">[</span>u8<span class="token punctuation">]</span><span class="token operator">&gt;</span><span class="token punctuation">,</span>
+<span class="token punctuation">{</span>
+    <span class="token function">ReadExact</span><span class="token punctuation">(</span><span class="token function">Some</span><span class="token punctuation">(</span>Reading <span class="token punctuation">{</span>
+        reader<span class="token punctuation">,</span>
+        buffer<span class="token punctuation">,</span>
+        <span class="token comment">// Initially, we've read no bytes into buffer.</span>
+        pos<span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">impl</span><span class="token operator">&lt;</span>R<span class="token punctuation">,</span> T<span class="token operator">&gt;</span> Future <span class="token keyword">for</span> ReadExact<span class="token operator">&lt;</span>R<span class="token punctuation">,</span> T<span class="token operator">&gt;</span>
+<span class="token keyword">where</span>
+    R<span class="token punctuation">:</span> AsyncRead<span class="token punctuation">,</span>
+    T<span class="token punctuation">:</span> AsMut<span class="token operator">&lt;</span><span class="token punctuation">[</span>u8<span class="token punctuation">]</span><span class="token operator">&gt;</span><span class="token punctuation">,</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">// When we've filled up the buffer, we want to return both the buffer</span>
+    <span class="token comment">// with the data that we read and the reader itself.</span>
+    <span class="token keyword">type</span> Item <span class="token operator">=</span> <span class="token punctuation">(</span>R<span class="token punctuation">,</span> T<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">type</span> Error <span class="token operator">=</span> io<span class="token punctuation">::</span>Error<span class="token punctuation">;</span>
+
+    <span class="token keyword">fn</span> <span class="token function">poll</span><span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token keyword">mut</span> <span class="token keyword">self</span><span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> Poll<span class="token operator">&lt;</span><span class="token keyword">Self</span><span class="token punctuation">::</span>Item<span class="token punctuation">,</span> <span class="token keyword">Self</span><span class="token punctuation">::</span>Error<span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+        <span class="token keyword">match</span> <span class="token keyword">self</span><span class="token punctuation">.</span><span class="token number">0</span> <span class="token punctuation">{</span>
+            <span class="token function">Some</span><span class="token punctuation">(</span>Reading <span class="token punctuation">{</span>
+                <span class="token keyword">ref</span> <span class="token keyword">mut</span> reader<span class="token punctuation">,</span>
+                <span class="token keyword">ref</span> <span class="token keyword">mut</span> buffer<span class="token punctuation">,</span>
+                <span class="token keyword">ref</span> <span class="token keyword">mut</span> pos<span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+                <span class="token keyword">let</span> buffer <span class="token operator">=</span> buffer<span class="token punctuation">.</span><span class="token function">as_mut</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token comment">// Check that we haven't finished</span>
+                <span class="token keyword">while</span> <span class="token operator">*</span>pos <span class="token operator">&lt;</span> buffer<span class="token punctuation">.</span><span class="token function">len</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token comment">// Try to read data into the remainder of the buffer.</span>
+                    <span class="token comment">// Just like read in std::io::Read, poll_read *can* read</span>
+                    <span class="token comment">// fewer bytes than the length of the buffer it is given,</span>
+                    <span class="token comment">// and we need to handle that by looking at its return</span>
+                    <span class="token comment">// value, which is the number of bytes actually read.</span>
+                    <span class="token comment">//</span>
+                    <span class="token comment">// Notice that we are using try_ready! here, so if poll_read</span>
+                    <span class="token comment">// returns NotReady (or an error), we will do the same!</span>
+                    <span class="token comment">// We uphold the contract that we have arranged to be</span>
+                    <span class="token comment">// notified later because poll_read follows that same</span>
+                    <span class="token comment">// contract, and _it_ returned NotReady.</span>
+                    <span class="token keyword">let</span> n <span class="token operator">=</span> <span class="token function">try_ready!</span><span class="token punctuation">(</span>reader<span class="token punctuation">.</span><span class="token function">poll_read</span><span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token keyword">mut</span> buffer<span class="token punctuation">[</span><span class="token operator">*</span>pos<span class="token punctuation">..</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token operator">*</span>pos <span class="token operator">+=</span> n<span class="token punctuation">;</span>
+
+                    <span class="token comment">// If no bytes were read, but there was no error, this</span>
+                    <span class="token comment">// generally implies that the reader will provide no more</span>
+                    <span class="token comment">// data (for example, because the TCP connection was closed</span>
+                    <span class="token comment">// by the other side).</span>
+                    <span class="token keyword">if</span> n <span class="token operator">==</span> <span class="token number">0</span> <span class="token punctuation">{</span>
+                        <span class="token keyword">return</span> <span class="token function">Err</span><span class="token punctuation">(</span>io<span class="token punctuation">::</span>Error<span class="token punctuation">::</span><span class="token function">new</span><span class="token punctuation">(</span>io<span class="token punctuation">::</span>ErrorKind<span class="token punctuation">::</span>UnexpectedEof<span class="token punctuation">,</span> <span class="token string">&quot;early eof&quot;</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+            None <span class="token operator">=&gt;</span> <span class="token function">panic!</span><span class="token punctuation">(</span><span class="token string">&quot;poll a ReadExact after it's done&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// We need to return the reader and the buffer, which we can only</span>
+        <span class="token comment">// do by moving them out of self. We do this by taking our state</span>
+        <span class="token comment">// and leaving `None`. This _should_ be fine, because poll()</span>
+        <span class="token comment">// requires callers to not call poll() again after Ready has been</span>
+        <span class="token comment">// returned, so we should only ever see Some(Reading) when poll()</span>
+        <span class="token comment">// is called.</span>
+        <span class="token keyword">let</span> reading <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span><span class="token number">0</span><span class="token punctuation">.</span><span class="token function">take</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">expect</span><span class="token punctuation">(</span><span class="token string">&quot;must have seen Some above&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">Ok</span><span class="token punctuation">(</span>Async<span class="token punctuation">::</span><span class="token function">Ready</span><span class="token punctuation">(</span><span class="token punctuation">(</span>reading<span class="token punctuation">.</span>reader<span class="token punctuation">,</span> reading<span class="token punctuation">.</span>buffer<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="用asyncwrite写数据"><a href="#用asyncwrite写数据" aria-hidden="true" class="header-anchor">#</a> 用<code>AsyncWrite</code>写数据</h2> <p>就像<code>poll_read</code>是<code>AsyncRead</code>的核心一样，<code>poll_write</code>也是<code>AsyncWrite</code>的核心部分。和<code>poll_read</code>一样，该方法检查<code>Err</code>类型是否为<code>WouldBlock</code>，如果是，则表明<code>write</code>操作将被阻塞，就返回<code>NotReady</code>，这再次让我们与futures互操作。<code>AsyncWrite</code>也有一个<code>poll_flush</code>，它提供了一个<code>Write</code> <code>flush</code>的异步版本。<code>poll_flush</code>确保先前通过<code>poll_write</code>写入的任何字节都被刷到底层I/O资源上（例如，发送网络数据包）。类似于<code>poll_write</code>，它封装了<code>Write::flush</code>，映射<code>WouldBlock</code>错误为<code>NotReady</code>，指示flush仍在进行中。</p> <p><code>AsyncWrite</code>的<code>poll_write</code>，以及<code>poll_flush</code>都遵循与<code>Future::poll</code>和<code>AsyncRead::poll_read</code>相同的合约，即如果你想返回<code>NotReady</code>，则必须保证当前任务能够被在可以进行下去的时候被通知。和<code>poll_read</code>一样，这意味着我们可以安全地在我们自己的futures中调用这些方法，因为我们知道我们也在遵守合同。</p> <p>Tokio使用和<code>poll_read</code>相同的通知机制来通知<code>poll_write</code>和<code>poll_flush</code>，你可以在Tokio内部原理的<a href="../internals">非阻塞I/O</a>中阅读更多相关内容。</p> <h3 id="关闭"><a href="#关闭" aria-hidden="true" class="header-anchor">#</a> 关闭</h3> <p><code>AsyncWrite</code>还添加了一个不属于<code>Write</code>的方法：<code>shutdown</code>。从它的文档：</p> <blockquote><p>启动或尝试关闭此writer，在I/O连接完全关闭时返回成功。</p></blockquote> <p>此方法旨在用于I/O连接的异步关闭。例如，这适用于实现TLS连接的关闭或调用<code>TcpStream::shutdown</code>来关闭<ruby>代理连接<rt>proxied connection</rt></ruby>。一些协议有时需要清除最终的数据，或者发起优雅关闭握手，适当地读写更多数据。此方法就是实现这些协议所需的优雅关闭握手逻辑的钩子方法（扩展点）。</p> <p>总结<code>shutdown</code>：它是一种告诉写一方不再有新数据产生的方法，并且它应该以底层I/O协议所需的任何方式指示。例如，对于TCP连接，这通常需要关闭TCP<ruby>通道<rt>channel</rt></ruby>的写入端，这样，另一端就可以读到0字节，表明已到文件尾。通常，你可以将<code>shutdown</code>视为你要实现<code>Drop</code>时你需要同步地执行的方法; 只是在异步世界中，你不能在<code>Drop</code>简单地处理，因为你需要有一个<ruby>执行器<rt>executor</rt></ruby>轮询你的writer！</p> <p>请注意，在一个实现了<code>AsyncWrite</code>和<code>AsyncRead</code>的<em>写半</em>部分调用<code>shutdown</code>不会关闭<em>读半</em>部分。您通常可以继续随意读取数据，直到另一方关闭相应的<em>写半</em>。</p> <h3 id="一个使用asyncwrite的例子"><a href="#一个使用asyncwrite的例子" aria-hidden="true" class="header-anchor">#</a> 一个使用<code>AsyncWrite</code>的例子</h3> <p>废话少说，让我们来看看我们如何实现：</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token attribute attr-name">#[macro_use]</span>
+<span class="token keyword">extern</span> <span class="token keyword">crate</span> futures<span class="token punctuation">;</span>
+<span class="token keyword">use</span> std<span class="token punctuation">::</span>io<span class="token punctuation">;</span>
+<span class="token keyword">use</span> tokio<span class="token punctuation">::</span>prelude<span class="token punctuation">::</span><span class="token operator">*</span><span class="token punctuation">;</span>
+
+<span class="token comment">// This is going to be our Future.</span>
+<span class="token comment">// It'll seem awfully familiar to ReadExact above!</span>
+<span class="token comment">// In the common case, this is set to Some(Writing),</span>
+<span class="token comment">// but we'll set it to None when we return Async::Ready</span>
+<span class="token comment">// so that we can return the writer and the buffer.</span>
+<span class="token keyword">struct</span> WriteAll<span class="token operator">&lt;</span>W<span class="token punctuation">,</span> T<span class="token operator">&gt;</span><span class="token punctuation">(</span>Option<span class="token operator">&lt;</span>Writing<span class="token operator">&lt;</span>W<span class="token punctuation">,</span> T<span class="token operator">&gt;&gt;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">struct</span> Writing<span class="token operator">&lt;</span>W<span class="token punctuation">,</span> T<span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// This is the stream we're writing into.</span>
+    writer<span class="token punctuation">:</span> W<span class="token punctuation">,</span>
+    <span class="token comment">// This is the buffer we're writing from.</span>
+    buffer<span class="token punctuation">:</span> T<span class="token punctuation">,</span>
+    <span class="token comment">// And this is much of the buffer we've written.</span>
+    pos<span class="token punctuation">:</span> usize<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// We want to be able to construct a WriteAll over anything</span>
+<span class="token comment">// that implements AsyncWrite, and any buffer that can be</span>
+<span class="token comment">// thought of as a &amp;[u8].</span>
+<span class="token keyword">fn</span> write_all<span class="token operator">&lt;</span>W<span class="token punctuation">,</span> T<span class="token operator">&gt;</span><span class="token punctuation">(</span>writer<span class="token punctuation">:</span> W<span class="token punctuation">,</span> buffer<span class="token punctuation">:</span> T<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> WriteAll<span class="token operator">&lt;</span>W<span class="token punctuation">,</span> T<span class="token operator">&gt;</span>
+<span class="token keyword">where</span>
+    W<span class="token punctuation">:</span> AsyncWrite<span class="token punctuation">,</span>
+    T<span class="token punctuation">:</span> AsRef<span class="token operator">&lt;</span><span class="token punctuation">[</span>u8<span class="token punctuation">]</span><span class="token operator">&gt;</span><span class="token punctuation">,</span>
+<span class="token punctuation">{</span>
+    <span class="token function">WriteAll</span><span class="token punctuation">(</span><span class="token function">Some</span><span class="token punctuation">(</span>Writing <span class="token punctuation">{</span>
+        writer<span class="token punctuation">,</span>
+        buffer<span class="token punctuation">,</span>
+        <span class="token comment">// Initially, we've written none of the bytes from buffer.</span>
+        pos<span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">impl</span><span class="token operator">&lt;</span>W<span class="token punctuation">,</span> T<span class="token operator">&gt;</span> Future <span class="token keyword">for</span> WriteAll<span class="token operator">&lt;</span>W<span class="token punctuation">,</span> T<span class="token operator">&gt;</span>
+<span class="token keyword">where</span>
+    W<span class="token punctuation">:</span> AsyncWrite<span class="token punctuation">,</span>
+    T<span class="token punctuation">:</span> AsRef<span class="token operator">&lt;</span><span class="token punctuation">[</span>u8<span class="token punctuation">]</span><span class="token operator">&gt;</span><span class="token punctuation">,</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">// When we've written out the entire buffer, we want to return</span>
+    <span class="token comment">// both the buffer and the writer so that the user can re-use them.</span>
+    <span class="token keyword">type</span> Item <span class="token operator">=</span> <span class="token punctuation">(</span>W<span class="token punctuation">,</span> T<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">type</span> Error <span class="token operator">=</span> io<span class="token punctuation">::</span>Error<span class="token punctuation">;</span>
+
+    <span class="token keyword">fn</span> <span class="token function">poll</span><span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token keyword">mut</span> <span class="token keyword">self</span><span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> Poll<span class="token operator">&lt;</span><span class="token keyword">Self</span><span class="token punctuation">::</span>Item<span class="token punctuation">,</span> <span class="token keyword">Self</span><span class="token punctuation">::</span>Error<span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+        <span class="token keyword">match</span> <span class="token keyword">self</span><span class="token punctuation">.</span><span class="token number">0</span> <span class="token punctuation">{</span>
+            <span class="token function">Some</span><span class="token punctuation">(</span>Writing <span class="token punctuation">{</span>
+                <span class="token keyword">ref</span> <span class="token keyword">mut</span> writer<span class="token punctuation">,</span>
+                <span class="token keyword">ref</span> buffer<span class="token punctuation">,</span>
+                <span class="token keyword">ref</span> <span class="token keyword">mut</span> pos<span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+                <span class="token keyword">let</span> buffer <span class="token operator">=</span> buffer<span class="token punctuation">.</span><span class="token function">as_ref</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token comment">// Check that we haven't finished</span>
+                <span class="token keyword">while</span> <span class="token operator">*</span>pos <span class="token operator">&lt;</span> buffer<span class="token punctuation">.</span><span class="token function">len</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token comment">// Try to write the remainder of the buffer into the writer.</span>
+                    <span class="token comment">// Just like write in std::io::Write, poll_write *can* write</span>
+                    <span class="token comment">// fewer bytes than the length of the buffer it is given,</span>
+                    <span class="token comment">// and we need to handle that by looking at its return</span>
+                    <span class="token comment">// value, which is the number of bytes actually written.</span>
+                    <span class="token comment">//</span>
+                    <span class="token comment">// We are using try_ready! here, just like in poll_read in</span>
+                    <span class="token comment">// ReadExact, so that if poll_write returns NotReady (or an</span>
+                    <span class="token comment">// error), we will do the same! We uphold the contract that</span>
+                    <span class="token comment">// we have arranged to be notified later because poll_write</span>
+                    <span class="token comment">// follows that same contract, and _it_ returned NotReady.</span>
+                    <span class="token keyword">let</span> n <span class="token operator">=</span> <span class="token function">try_ready!</span><span class="token punctuation">(</span>writer<span class="token punctuation">.</span><span class="token function">poll_write</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>buffer<span class="token punctuation">[</span><span class="token operator">*</span>pos<span class="token punctuation">..</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token operator">*</span>pos <span class="token operator">+=</span> n<span class="token punctuation">;</span>
+
+                    <span class="token comment">// If no bytes were written, but there was no error, this</span>
+                    <span class="token comment">// generally implies that something weird happened under us.</span>
+                    <span class="token comment">// We make sure to turn this into an error for the caller to</span>
+                    <span class="token comment">// deal with.</span>
+                    <span class="token keyword">if</span> n <span class="token operator">==</span> <span class="token number">0</span> <span class="token punctuation">{</span>
+                        <span class="token keyword">return</span> <span class="token function">Err</span><span class="token punctuation">(</span>io<span class="token punctuation">::</span>Error<span class="token punctuation">::</span><span class="token function">new</span><span class="token punctuation">(</span>
+                            io<span class="token punctuation">::</span>ErrorKind<span class="token punctuation">::</span>WriteZero<span class="token punctuation">,</span>
+                            <span class="token string">&quot;zero-length write&quot;</span><span class="token punctuation">,</span>
+                        <span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+            None <span class="token operator">=&gt;</span> <span class="token function">panic!</span><span class="token punctuation">(</span><span class="token string">&quot;poll a WriteAll after it's done&quot;</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// We use the same trick as in ReadExact to ensure that we can return</span>
+        <span class="token comment">// the buffer and the writer once the entire buffer has been written out.</span>
+        <span class="token keyword">let</span> writing <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span><span class="token number">0</span><span class="token punctuation">.</span><span class="token function">take</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">expect</span><span class="token punctuation">(</span><span class="token string">&quot;must have seen Some above&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">Ok</span><span class="token punctuation">(</span>Async<span class="token punctuation">::</span><span class="token function">Ready</span><span class="token punctuation">(</span><span class="token punctuation">(</span>writing<span class="token punctuation">.</span>writer<span class="token punctuation">,</span> writing<span class="token punctuation">.</span>buffer<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div></div> <div class="page-edit"><div class="edit-link"><a href="https://github.com/tokio-zh/tokio-zh/edit/master/docs/document/io/async_read_write.md" target="_blank" rel="noopener noreferrer">在 GitHub 上编辑此页</a> <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></div> <div class="last-updated"><span class="prefix">上次更新: </span> <span class="time">3/5/2019, 1:18:59 AM</span></div></div> <div class="page-nav"><p class="inner"><span class="prev">
+        ←
+        <a href="/document/io/poll.html" class="prev">
+          Poll（轮询）APIs
+        </a></span> <span class="next"><a href="/document/io/filesystem.html">
+          文件系统APIs
+        </a>
+        →
+      </span></p></div> <div class="bsa-cpc-wrapper"><div class="bsa-cpc"></div></div></div> <!----></div></div>
+    <script src="/assets/js/app.8bade797.js" defer></script><script src="/assets/js/40.0122edd7.js" defer></script>
+  </body>
+</html>

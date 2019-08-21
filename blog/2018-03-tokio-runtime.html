@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>宣布Tokio运行时 | Tokio中文</title>
+    <meta name="description" content="Tokio：Rust编程语言的异步运行时,提供异步事件驱动平台，构建快速，可靠和轻量级网络应用。利用Rust的所有权和并发模型确保线程安全">
+    <link rel="icon" href="/favicon.ico">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#3eaf7c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon-152x152.png">
+  <meta name="msapplication-TileImage" content="/icons/msapplication-icon-144x144.png">
+  <meta name="msapplication-TileColor" content="#000000">
+    
+    <link rel="preload" href="/assets/css/styles.8bade797.css" as="style"><link rel="preload" href="/assets/js/app.8bade797.js" as="script"><link rel="preload" href="/assets/js/9.740f1fa8.js" as="script"><link rel="prefetch" href="/assets/css/1.styles.729a41a7.css"><link rel="prefetch" href="/assets/css/2.styles.6f2df653.css"><link rel="prefetch" href="/assets/js/1.729a41a7.js"><link rel="prefetch" href="/assets/js/10.f4dee4dc.js"><link rel="prefetch" href="/assets/js/11.0a79d276.js"><link rel="prefetch" href="/assets/js/12.9a1ecca2.js"><link rel="prefetch" href="/assets/js/13.f323aedb.js"><link rel="prefetch" href="/assets/js/14.f94ed1c8.js"><link rel="prefetch" href="/assets/js/15.2e17eed0.js"><link rel="prefetch" href="/assets/js/16.5f7f0fb0.js"><link rel="prefetch" href="/assets/js/17.a804f778.js"><link rel="prefetch" href="/assets/js/18.917a7b15.js"><link rel="prefetch" href="/assets/js/19.515a2278.js"><link rel="prefetch" href="/assets/js/2.6f2df653.js"><link rel="prefetch" href="/assets/js/20.773272da.js"><link rel="prefetch" href="/assets/js/21.40aff844.js"><link rel="prefetch" href="/assets/js/22.0786618d.js"><link rel="prefetch" href="/assets/js/23.c63536e4.js"><link rel="prefetch" href="/assets/js/24.9c06a2f7.js"><link rel="prefetch" href="/assets/js/25.4a194b57.js"><link rel="prefetch" href="/assets/js/26.40c11936.js"><link rel="prefetch" href="/assets/js/27.9e35a1f5.js"><link rel="prefetch" href="/assets/js/28.f007bc19.js"><link rel="prefetch" href="/assets/js/29.b2b6291e.js"><link rel="prefetch" href="/assets/js/3.6ae31a5f.js"><link rel="prefetch" href="/assets/js/30.f37829da.js"><link rel="prefetch" href="/assets/js/31.a71b9216.js"><link rel="prefetch" href="/assets/js/32.33337511.js"><link rel="prefetch" href="/assets/js/33.2eb4488f.js"><link rel="prefetch" href="/assets/js/34.967d43ee.js"><link rel="prefetch" href="/assets/js/35.95be69d9.js"><link rel="prefetch" href="/assets/js/36.9c0eb4ef.js"><link rel="prefetch" href="/assets/js/37.8fba8c6a.js"><link rel="prefetch" href="/assets/js/38.6f18dc3e.js"><link rel="prefetch" href="/assets/js/39.1064e57f.js"><link rel="prefetch" href="/assets/js/4.4178ba81.js"><link rel="prefetch" href="/assets/js/40.0122edd7.js"><link rel="prefetch" href="/assets/js/41.c85cb408.js"><link rel="prefetch" href="/assets/js/42.f08452f5.js"><link rel="prefetch" href="/assets/js/43.923b63dc.js"><link rel="prefetch" href="/assets/js/44.fe42b200.js"><link rel="prefetch" href="/assets/js/45.fbe2b9fb.js"><link rel="prefetch" href="/assets/js/5.9ab7d2a6.js"><link rel="prefetch" href="/assets/js/6.e89b2efe.js"><link rel="prefetch" href="/assets/js/7.2ef1920d.js"><link rel="prefetch" href="/assets/js/8.60746b2b.js">
+    <link rel="stylesheet" href="/assets/css/styles.8bade797.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">Tokio中文</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/document/" class="nav-link">文档</a></div><div class="nav-item"><a href="/community/" class="nav-link">社区</a></div><div class="nav-item"><a href="/blog/" class="nav-link router-link-active">博客</a></div><div class="nav-item"><a href="https://rustlang-cn.org/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Rust中文
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div><div class="nav-item"><a href="https://tokio.rs" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  英文
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <a href="https://github.com/tokio-zh/tokio-zh" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav></div></header> <div class="sidebar-mask"></div> <div class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/document/" class="nav-link">文档</a></div><div class="nav-item"><a href="/community/" class="nav-link">社区</a></div><div class="nav-item"><a href="/blog/" class="nav-link router-link-active">博客</a></div><div class="nav-item"><a href="https://rustlang-cn.org/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Rust中文
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div><div class="nav-item"><a href="https://tokio.rs" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  英文
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <a href="https://github.com/tokio-zh/tokio-zh" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav> <div class="carbon-ads"></div> <ul class="sidebar-links"><li><a href="/blog/" class="sidebar-link">一个伟大的2018年，甚至更好的2019年</a></li><li><a href="/blog/2018-10-tokio-doc-push.html" class="sidebar-link">宣布Tokio Doc Push（我们需要你！）</a></li><li><a href="/blog/2018-08-async-await.html" class="sidebar-link">Tokio对async/await的实验性支持</a></li><li><a href="/blog/2018-08-incremental-improvements.html" class="sidebar-link">Tokio 0.1.8有许多增量改进</a></li><li><a href="/blog/2018-05-tokio-fs.html" class="sidebar-link">新的Tokio版本，现在支持文件系统</a></li><li><a href="/blog/2018-03-tokio-runtime.html" class="active sidebar-link">宣布Tokio运行时</a></li><li><a href="/blog/2018-03-timers.html" class="sidebar-link">新的Timer实现</a></li><li><a href="/blog/2018-02-tokio-reform-shipped.html" class="sidebar-link">Tokio改革发货，通往0.2</a></li><li><a href="/blog/2017-09-tokio-reform.html" class="sidebar-link">Tokio改造的RFC</a></li><li><a href="/blog/2017-03-tokio-io.html" class="sidebar-link">宣布tokio-io Crate</a></li><li><a href="/blog/2017-01-tokio-0-1.html" class="sidebar-link">宣布Tokio 0.1</a></li></ul> </div> <div class="page"> <div class="content"><h1 id="宣布tokio运行时"><a href="#宣布tokio运行时" aria-hidden="true" class="header-anchor">#</a> 宣布Tokio运行时</h1> <p>我很高兴宣布Tokio的新版本。 此版本包括第一个
+Tokio Runtime的迭代。</p> <h2 id="tl-dr"><a href="#tl-dr" aria-hidden="true" class="header-anchor">#</a> tl;dr</h2> <p>这就是现在编写基于多线程Tokio的服务器的方式：</p> <div class="language-rust,ignore extra-class"><pre class="language-text"><code>extern crate tokio;
+
+use tokio::net::TcpListener;
+use tokio::prelude::*;
+
+fn process(s: TcpStream)
+  -&gt; impl Future&lt;Item = (), Error = ()&gt; + Send
+{ ... }
+
+let addr = &quot;127.0.0.1:8080&quot;.parse().unwrap();
+let listener = TcpListener::bind(&amp;addr).unwrap();
+
+let server = listener.incoming()
+    .map_err(|e| println!(&quot;error = {:?}&quot;, e))
+    .for_each(|socket| {
+        tokio::spawn(process(socket))
+    });
+
+tokio::run(server);
+</code></pre></div><p>其中<code>process</code>表示一个用户定义的函数，它接受一个套接字和
+返回处理它的未来。 对于echo服务器，可能是
+从套接字读取所有数据并将其写回同一个套接字。</p> <p><a href="https://tokio.rs/docs/getting-started/hello-world/" target="_blank" rel="noopener noreferrer">guides<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a>和<a href="https://github.com/tokio-rs/tokio/tree/master/examples" target="_blank" rel="noopener noreferrer">examples<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a>已更新为使用运行时。</p> <h2 id="什么是tokio-runtime"><a href="#什么是tokio-runtime" aria-hidden="true" class="header-anchor">#</a> 什么是Tokio Runtime</h2> <p>Rust异步堆栈正在发展为一组松散耦合的组件。
+要运行基本的网络应用程序，您至少需要一个
+异步任务执行器和Tokio反应器的实例。因为
+一切都是分离的，这些各种各样有多种选择
+组件，但这为所有应用程序添加了一堆样板。</p> <p>为了帮助缓解这个问题，Tokio现在提供了运行时的概念。这是一个
+预先配置的所有各种组件的包
+运行应用程序。</p> <p>运行时的初始版本包括reactor和a
+基于<a href="https://en.wikipedia.org/wiki/Work_stealing" target="_blank" rel="noopener noreferrer">work-stealing<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a>的线程池，用于调度和执行应用程序
+码。这为应用程序提供了多线程默认值。</p> <p>工作窃取默认值适用于大多数应用程序。它使用了类似的
+策略如Go，Erlang，.NET，Java（ForkJoin池）等......
+Tokio提供的实现是针对很多用例的
+<strong>不相关的</strong>任务在单个线程池上复用。</p> <h2 id="使用tokio-runtime"><a href="#使用tokio-runtime" aria-hidden="true" class="header-anchor">#</a> 使用Tokio Runtime</h2> <p>如上例所示，使用Tokio运行时的最简单方法
+有两个功能：</p> <ul><li><code>tokio :: run</code></li> <li><code>tokio :: spawn</code>。</li></ul> <p>第一个函数需要一个未来种子应用程序并启动
+运行。粗略地说，它做了以下事情：</p> <ol><li>启动反应堆。</li> <li>启动线程池。</li> <li>将未来产生到线程池中。</li> <li>阻塞线程，直到运行时空闲。</li></ol> <p>运行时变为空闲<strong>所有</strong>生成的期货已经完成并且<strong>全部</strong>
+绑定到反应器的I / O资源被丢弃。</p> <p>从运行时的上下文中。该应用程序可能会产生额外的
+使用<code>tokio :: spawn</code>进入线程池的期货。</p> <p>或者，可以直接使用<code>Runtime</code>类型。这允许更多
+设置和使用运行时的灵活性。</p> <h2 id="未来的改进"><a href="#未来的改进" aria-hidden="true" class="header-anchor">#</a> 未来的改进</h2> <p>这只是Tokio运行时的初始版本。即将发布的版本将
+包括对基于Tokio的应用程序有用的附加功能。一个
+博客文章即将推出更详细的路线图。</p> <p>如前所述，目标是尽早和经常发布。提供新的
+使社区能够试验它们的功能。接下来的某个时候
+几个月，整个Tokio堆栈都会有一个突破性的释放，所以任何
+在此之前需要发现API中的更改。</p> <h2 id="tokio-core"><a href="#tokio-core" aria-hidden="true" class="header-anchor">#</a> Tokio-core</h2> <p>还有一个新的'tokio-core<code>版本。此版本更新</code>tokio-core<code>在引擎盖下使用</code>tokio<code>。这使所有现有的 目前依赖于</code>tokio-core`（如Hyper）的应用程序和库
+能够使用Tokio运行时带来的改进
+要求改变。</p> <p>考虑到未来几个月预计会发生的流失量，
+我们希望能够帮助缓解各版本的过渡。</p></div> <div class="page-edit"><div class="edit-link"><a href="https://github.com/tokio-zh/tokio-zh/edit/master/docs/blog/2018-03-tokio-runtime.md" target="_blank" rel="noopener noreferrer">在 GitHub 上编辑此页</a> <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></div> <div class="last-updated"><span class="prefix">上次更新: </span> <span class="time">11/4/2018, 4:39:08 AM</span></div></div> <div class="page-nav"><p class="inner"><span class="prev">
+        ←
+        <a href="/blog/2018-05-tokio-fs.html" class="prev">
+          新的Tokio版本，现在支持文件系统
+        </a></span> <span class="next"><a href="/blog/2018-03-timers.html">
+          新的Timer实现
+        </a>
+        →
+      </span></p></div> <div class="bsa-cpc-wrapper"><div class="bsa-cpc"></div></div></div> <!----></div></div>
+    <script src="/assets/js/app.8bade797.js" defer></script><script src="/assets/js/9.740f1fa8.js" defer></script>
+  </body>
+</html>

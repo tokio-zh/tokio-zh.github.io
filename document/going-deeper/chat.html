@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>示例：聊天服务器 | Tokio中文</title>
+    <meta name="description" content="Tokio：Rust编程语言的异步运行时,提供异步事件驱动平台，构建快速，可靠和轻量级网络应用。利用Rust的所有权和并发模型确保线程安全">
+    <link rel="icon" href="/favicon.ico">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#3eaf7c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon-152x152.png">
+  <meta name="msapplication-TileImage" content="/icons/msapplication-icon-144x144.png">
+  <meta name="msapplication-TileColor" content="#000000">
+    
+    <link rel="preload" href="/assets/css/styles.8bade797.css" as="style"><link rel="preload" href="/assets/js/app.8bade797.js" as="script"><link rel="preload" href="/assets/js/28.f007bc19.js" as="script"><link rel="prefetch" href="/assets/css/1.styles.729a41a7.css"><link rel="prefetch" href="/assets/css/2.styles.6f2df653.css"><link rel="prefetch" href="/assets/js/1.729a41a7.js"><link rel="prefetch" href="/assets/js/10.f4dee4dc.js"><link rel="prefetch" href="/assets/js/11.0a79d276.js"><link rel="prefetch" href="/assets/js/12.9a1ecca2.js"><link rel="prefetch" href="/assets/js/13.f323aedb.js"><link rel="prefetch" href="/assets/js/14.f94ed1c8.js"><link rel="prefetch" href="/assets/js/15.2e17eed0.js"><link rel="prefetch" href="/assets/js/16.5f7f0fb0.js"><link rel="prefetch" href="/assets/js/17.a804f778.js"><link rel="prefetch" href="/assets/js/18.917a7b15.js"><link rel="prefetch" href="/assets/js/19.515a2278.js"><link rel="prefetch" href="/assets/js/2.6f2df653.js"><link rel="prefetch" href="/assets/js/20.773272da.js"><link rel="prefetch" href="/assets/js/21.40aff844.js"><link rel="prefetch" href="/assets/js/22.0786618d.js"><link rel="prefetch" href="/assets/js/23.c63536e4.js"><link rel="prefetch" href="/assets/js/24.9c06a2f7.js"><link rel="prefetch" href="/assets/js/25.4a194b57.js"><link rel="prefetch" href="/assets/js/26.40c11936.js"><link rel="prefetch" href="/assets/js/27.9e35a1f5.js"><link rel="prefetch" href="/assets/js/29.b2b6291e.js"><link rel="prefetch" href="/assets/js/3.6ae31a5f.js"><link rel="prefetch" href="/assets/js/30.f37829da.js"><link rel="prefetch" href="/assets/js/31.a71b9216.js"><link rel="prefetch" href="/assets/js/32.33337511.js"><link rel="prefetch" href="/assets/js/33.2eb4488f.js"><link rel="prefetch" href="/assets/js/34.967d43ee.js"><link rel="prefetch" href="/assets/js/35.95be69d9.js"><link rel="prefetch" href="/assets/js/36.9c0eb4ef.js"><link rel="prefetch" href="/assets/js/37.8fba8c6a.js"><link rel="prefetch" href="/assets/js/38.6f18dc3e.js"><link rel="prefetch" href="/assets/js/39.1064e57f.js"><link rel="prefetch" href="/assets/js/4.4178ba81.js"><link rel="prefetch" href="/assets/js/40.0122edd7.js"><link rel="prefetch" href="/assets/js/41.c85cb408.js"><link rel="prefetch" href="/assets/js/42.f08452f5.js"><link rel="prefetch" href="/assets/js/43.923b63dc.js"><link rel="prefetch" href="/assets/js/44.fe42b200.js"><link rel="prefetch" href="/assets/js/45.fbe2b9fb.js"><link rel="prefetch" href="/assets/js/5.9ab7d2a6.js"><link rel="prefetch" href="/assets/js/6.e89b2efe.js"><link rel="prefetch" href="/assets/js/7.2ef1920d.js"><link rel="prefetch" href="/assets/js/8.60746b2b.js"><link rel="prefetch" href="/assets/js/9.740f1fa8.js">
+    <link rel="stylesheet" href="/assets/css/styles.8bade797.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" class="home-link router-link-active"><!----> <span class="site-name">Tokio中文</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/document/" class="nav-link router-link-active">文档</a></div><div class="nav-item"><a href="/community/" class="nav-link">社区</a></div><div class="nav-item"><a href="/blog/" class="nav-link">博客</a></div><div class="nav-item"><a href="https://rustlang-cn.org/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Rust中文
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div><div class="nav-item"><a href="https://tokio.rs" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  英文
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <a href="https://github.com/tokio-zh/tokio-zh" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav></div></header> <div class="sidebar-mask"></div> <div class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/document/" class="nav-link router-link-active">文档</a></div><div class="nav-item"><a href="/community/" class="nav-link">社区</a></div><div class="nav-item"><a href="/blog/" class="nav-link">博客</a></div><div class="nav-item"><a href="https://rustlang-cn.org/" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  Rust中文
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div><div class="nav-item"><a href="https://tokio.rs" target="_blank" rel="noopener noreferrer" class="nav-link external">
+  英文
+  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></div> <a href="https://github.com/tokio-zh/tokio-zh" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav> <div class="carbon-ads"></div> <ul class="sidebar-links"><li><a href="/document/" class="sidebar-link">何为Tokio</a></li><li><div class="sidebar-group"><p class="sidebar-heading"><span>开始</span> <!----></p> <ul class="sidebar-group-items"><li><a href="/document/getting-started/hello-world.html" class="sidebar-link">Hello World</a></li><li><a href="/document/getting-started/futures.html" class="sidebar-link">Futures</a></li><li><a href="/document/getting-started/runtime.html" class="sidebar-link">运行时</a></li><li><a href="/document/getting-started/echo.html" class="sidebar-link">示例：Echo服务器</a></li></ul></div></li><li><div class="sidebar-group"><p class="sidebar-heading"><span>Tokio与I/O</span> <!----></p> <ul class="sidebar-group-items"><li><a href="/document/io/overview.html" class="sidebar-link">I/O概叙</a></li><li><a href="/document/io/reading_writing_data.html" class="sidebar-link">读写数据</a></li><li><a href="/document/io/poll.html" class="sidebar-link">Poll（轮询）APIs</a></li><li><a href="/document/io/async_read_write.html" class="sidebar-link">直接使用AsyncRead和AsyncWrite</a></li><li><a href="/document/io/filesystem.html" class="sidebar-link">文件系统APIs</a></li><li><a href="/document/io/datagrams.html" class="sidebar-link">Datagram APIs</a></li></ul></div></li><li><div class="sidebar-group"><p class="sidebar-heading"><span>Futures-Streams-Sinks</span> <!----></p> <ul class="sidebar-group-items"><li><a href="/document/futures-streams-sinks/overview.html" class="sidebar-link">概叙</a></li><li><a href="/document/futures-streams-sinks/futures.html" class="sidebar-link">使用Future</a></li><li><a href="/document/futures-streams-sinks/streams.html" class="sidebar-link">使用Stream</a></li><li><a href="/document/futures-streams-sinks/sink.html" class="sidebar-link">使用Sink</a></li><li><a href="/document/futures-streams-sinks/putting-it-together.html" class="sidebar-link">结合在一起</a></li></ul></div></li><li><div class="sidebar-group"><p class="sidebar-heading open"><span>深入</span> <!----></p> <ul class="sidebar-group-items"><li><a href="/document/going-deeper/futures.html" class="sidebar-link">Futures</a></li><li><a href="/document/going-deeper/tasks.html" class="sidebar-link">任务</a></li><li><a href="/document/going-deeper/runtime-model.html" class="sidebar-link">运行时模型</a></li><li><a href="/document/going-deeper/io.html" class="sidebar-link">Tokio与I/O</a></li><li><a href="/document/going-deeper/chat.html" class="active sidebar-link">示例：聊天服务器</a></li><li><a href="/document/going-deeper/timers.html" class="sidebar-link">Timers</a></li><li><a href="/document/going-deeper/futures-mechanics.html" class="sidebar-link">基础组合器</a></li><li><a href="/document/going-deeper/returning.html" class="sidebar-link">返回Futures</a></li><li><a href="/document/going-deeper/frames.html" class="sidebar-link">使用构建流</a></li><li><a href="/document/going-deeper/building-runtime.html" class="sidebar-link">构建一个运行时</a></li></ul></div></li><li><div class="sidebar-group"><p class="sidebar-heading"><span>内部原理</span> <!----></p> <ul class="sidebar-group-items"><li><a href="/document/internals/intro.html" class="sidebar-link">介绍</a></li><li><a href="/document/internals/runtime-model.html" class="sidebar-link">运行时模型</a></li><li><a href="/document/internals/net.html" class="sidebar-link">非阻塞I/O</a></li></ul></div></li><li><a href="/document/api.html" class="sidebar-link">API文档</a></li></ul> </div> <div class="page"> <div class="content"><h1 id="示例：聊天服务器"><a href="#示例：聊天服务器" aria-hidden="true" class="header-anchor">#</a> 示例：聊天服务器</h1> <p>我们将使用到目前为止已经涵盖的内容来构建聊天服务器。 这是一个非平凡的Tokio服务器应用程序。</p> <p>服务器将使用基于行的协议。 行以<code>\ r \ n</code>结束。 这与telnet兼容，因此我们只使用telnet作为客户端。 当客户端连接时，它必须通过发送包含其“缺口”的行来标识自己（即，用于在其 <code>Peer</code>中标识客户端的某个名称）。</p> <p>识别出客户端后，所有发送的行都以[nick]:为前缀,并广播给所有其他连接的客户端。</p> <p>完整的代码可以在<a href="https://github.com/tokio-rs/tokio/blob/master/examples/chat.rs" target="_blank" rel="noopener noreferrer">这里<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a>找到。 请注意，Tokio提供了一些尚未涵盖的额外抽象，这些抽象将使聊天服务器能够用更少的代码编写。</p> <p>首先，生成一个新的箱子。</p> <div class="language-rust extra-class"><pre class="language-rust"><code>$ cargo new <span class="token operator">-</span><span class="token operator">-</span>bin line<span class="token operator">-</span>chat
+cd line<span class="token operator">-</span>chat
+</code></pre></div><p>接下来，添加必要的依赖项：</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token punctuation">[</span>dependencies<span class="token punctuation">]</span>
+tokio <span class="token operator">=</span> <span class="token string">&quot;0.1&quot;</span>
+tokio<span class="token operator">-</span>io <span class="token operator">=</span> <span class="token string">&quot;0.1&quot;</span>
+futures <span class="token operator">=</span> <span class="token string">&quot;0.1&quot;</span>
+bytes <span class="token operator">=</span> <span class="token string">&quot;0.4&quot;</span>
+</code></pre></div><div class="language-rust extra-class"><pre class="language-rust"><code><span class="token keyword">extern</span> <span class="token keyword">crate</span> tokio<span class="token punctuation">;</span>
+<span class="token attribute attr-name">#[macro_use]</span>
+<span class="token keyword">extern</span> <span class="token keyword">crate</span> futures<span class="token punctuation">;</span>
+<span class="token keyword">extern</span> <span class="token keyword">crate</span> bytes<span class="token punctuation">;</span>
+
+<span class="token keyword">use</span> tokio<span class="token punctuation">::</span>io<span class="token punctuation">;</span>
+<span class="token keyword">use</span> tokio<span class="token punctuation">::</span>net<span class="token punctuation">::</span><span class="token punctuation">{</span>TcpListener<span class="token punctuation">,</span> TcpStream<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token keyword">use</span> tokio<span class="token punctuation">::</span>prelude<span class="token punctuation">::</span><span class="token operator">*</span><span class="token punctuation">;</span>
+<span class="token keyword">use</span> futures<span class="token punctuation">::</span>sync<span class="token punctuation">::</span>mpsc<span class="token punctuation">;</span>
+<span class="token keyword">use</span> futures<span class="token punctuation">::</span>future<span class="token punctuation">::</span><span class="token punctuation">{</span><span class="token keyword">self</span><span class="token punctuation">,</span> Either<span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token keyword">use</span> bytes<span class="token punctuation">::</span><span class="token punctuation">{</span>BytesMut<span class="token punctuation">,</span> Bytes<span class="token punctuation">,</span> BufMut<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">use</span> std<span class="token punctuation">::</span>collections<span class="token punctuation">::</span>HashMap<span class="token punctuation">;</span>
+<span class="token keyword">use</span> std<span class="token punctuation">::</span>net<span class="token punctuation">::</span>SocketAddr<span class="token punctuation">;</span>
+<span class="token keyword">use</span> std<span class="token punctuation">::</span>sync<span class="token punctuation">::</span><span class="token punctuation">{</span>Arc<span class="token punctuation">,</span> Mutex<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">/// Shorthand for the transmit half of the message channel.</span>
+<span class="token keyword">type</span> Tx <span class="token operator">=</span> mpsc<span class="token punctuation">::</span>UnboundedSender<span class="token operator">&lt;</span>Bytes<span class="token operator">&gt;</span><span class="token punctuation">;</span>
+
+<span class="token comment">/// Shorthand for the receive half of the message channel.</span>
+<span class="token keyword">type</span> Rx <span class="token operator">=</span> mpsc<span class="token punctuation">::</span>UnboundedReceiver<span class="token operator">&lt;</span>Bytes<span class="token operator">&gt;</span><span class="token punctuation">;</span>
+</code></pre></div><p>现在，我们为服务器设置必要的结构。 这些步骤与Hello World中使用的步骤相同！ 例：</p> <ul><li>将TcpListener绑定到本地端口。</li> <li>定义接受入站连接并处理它们的任务。</li> <li>启动Tokio运行时</li> <li>产生服务器任务。</li></ul> <p>同样，在执行程序上生成服务器任务之前，实际上不会发生任何工作。</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token keyword">fn</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> addr <span class="token operator">=</span> <span class="token string">&quot;127.0.0.1:6142&quot;</span><span class="token punctuation">.</span><span class="token function">parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">unwrap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">let</span> listener <span class="token operator">=</span> TcpListener<span class="token punctuation">::</span><span class="token function">bind</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>addr<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">unwrap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">let</span> server <span class="token operator">=</span> listener<span class="token punctuation">.</span><span class="token function">incoming</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">for_each</span><span class="token punctuation">(</span><span class="token keyword">move</span> <span class="token closure-params"><span class="token punctuation">|</span>socket<span class="token punctuation">|</span></span> <span class="token punctuation">{</span>
+        <span class="token comment">// TODO: Process socket</span>
+        <span class="token function">Ok</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">map_err</span><span class="token punctuation">(</span><span class="token closure-params"><span class="token punctuation">|</span>err<span class="token punctuation">|</span></span> <span class="token punctuation">{</span>
+        <span class="token comment">// Handle error by printing to STDOUT.</span>
+        <span class="token function">println!</span><span class="token punctuation">(</span><span class="token string">&quot;accept error = {:?}&quot;</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token function">println!</span><span class="token punctuation">(</span><span class="token string">&quot;server running on localhost:6142&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// Start the server</span>
+    <span class="token comment">//</span>
+    <span class="token comment">// This does a few things:</span>
+    <span class="token comment">//</span>
+    <span class="token comment">// * Start the Tokio runtime (reactor, threadpool, etc...)</span>
+    <span class="token comment">// * Spawns the `server` task onto the runtime.</span>
+    <span class="token comment">// * Blocks the current thread until the runtime becomes idle, i.e. all</span>
+    <span class="token comment">//   spawned tasks have completed.</span>
+    tokio<span class="token punctuation">::</span><span class="token function">run</span><span class="token punctuation">(</span>server<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="chat-state"><a href="#chat-state" aria-hidden="true" class="header-anchor">#</a> Chat State</h2> <p>聊天服务器要求从一个客户端接收的消息被广播到所有其他连接的客户端。 这将使用通过mpsc通道传递的消息来完成。</p> <p>每个客户端套接字都将由任务管理。 每个任务都有一个关联的mpsc通道，用于接收来自其他客户端的消息。 所有这些通道的发送一半存储在Rc单元中以使它们可访问。</p> <p>在这个例子中，我们将使用无界通道。 理想情况下，渠道永远不应该是无限制的，但在这种情况下处理背压有点棘手。 我们将把通道限制在后面专门用于处理背压的部分。</p> <p>以下是共享状态的定义方式（上面已完成Tx类型别名）：</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token keyword">struct</span> Shared <span class="token punctuation">{</span>
+    peers<span class="token punctuation">:</span> HashMap<span class="token operator">&lt;</span>SocketAddr<span class="token punctuation">,</span> Tx<span class="token operator">&gt;</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>然后，在main函数的最顶部，创建状态实例。 此状态实例将移动到接受传入连接的任务中。</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token keyword">let</span> state <span class="token operator">=</span> Arc<span class="token punctuation">::</span><span class="token function">new</span><span class="token punctuation">(</span>Mutex<span class="token punctuation">::</span><span class="token function">new</span><span class="token punctuation">(</span>Shared<span class="token punctuation">::</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><p>现在我们可以处理传入的连接。 服务器任务更新为：</p> <div class="language-rust extra-class"><pre class="language-rust"><code>listener<span class="token punctuation">.</span><span class="token function">incoming</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">for_each</span><span class="token punctuation">(</span><span class="token keyword">move</span> <span class="token closure-params"><span class="token punctuation">|</span>socket<span class="token punctuation">|</span></span> <span class="token punctuation">{</span>
+    <span class="token function">process</span><span class="token punctuation">(</span>socket<span class="token punctuation">,</span> state<span class="token punctuation">.</span><span class="token function">clone</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">Ok</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre></div><p>服务器任务将所有套接字以及服务器状态的克隆传递给进程函数。 我们来定义那个功能。 它将具有这样的结构：</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token keyword">fn</span> <span class="token function">process</span><span class="token punctuation">(</span>socket<span class="token punctuation">:</span> TcpStream<span class="token punctuation">,</span> state<span class="token punctuation">:</span> Arc<span class="token operator">&lt;</span>Mutex<span class="token operator">&lt;</span>Shared<span class="token operator">&gt;&gt;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Define the task that processes the connection.</span>
+    <span class="token keyword">let</span> task <span class="token operator">=</span> <span class="token function">unimplemented!</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// Spawn the task</span>
+    tokio<span class="token punctuation">::</span><span class="token function">spawn</span><span class="token punctuation">(</span>task<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>对tokio :: spawn的调用将在当前的Tokio运行时生成一个新任务。 所有工作线程都保留对存储在线程局部变量中的当前运行时的引用。 注意，尝试从Tokio运行时外部调用tokio :: spawn将导致恐慌。</p> <p>所有连接处理逻辑必须能够理解协议。 该协议是基于行的，由\ r \ n终止。 它不是在字节流级别工作，而是更容易在帧级工作，即使用表示原子消息的值。</p> <p>我们实现了一个包含套接字的编解码器，并公开了一个采用和消耗行的API。</p> <h2 id="线性编解码器"><a href="#线性编解码器" aria-hidden="true" class="header-anchor">#</a> 线性编解码器</h2> <p>对于采用字节流类型（AsyncRead + AsyncWrite）并在帧级别公开读写API的类型，编解码器是一个松散术语。 tokio-io crate为编写编解码器提供了额外的帮助，在这个例子中，我们将手动完成。</p> <p><code>Lines</code>编解码器定义如下：</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token keyword">struct</span> Lines <span class="token punctuation">{</span>
+    socket<span class="token punctuation">:</span> TcpStream<span class="token punctuation">,</span>
+    rd<span class="token punctuation">:</span> BytesMut<span class="token punctuation">,</span>
+    wr<span class="token punctuation">:</span> BytesMut<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">impl</span> Lines <span class="token punctuation">{</span>
+    <span class="token comment">/// Create a new `Lines` codec backed by the socket</span>
+    <span class="token keyword">fn</span> <span class="token function">new</span><span class="token punctuation">(</span>socket<span class="token punctuation">:</span> TcpStream<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> <span class="token keyword">Self</span> <span class="token punctuation">{</span>
+        Lines <span class="token punctuation">{</span>
+            socket<span class="token punctuation">,</span>
+            rd<span class="token punctuation">:</span> BytesMut<span class="token punctuation">::</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+            wr<span class="token punctuation">:</span> BytesMut<span class="token punctuation">::</span><span class="token function">new</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>从套接字读取的数据缓冲到rd中。 读取完整行后，将返回给调用者。 调用者提交以写入套接字的行被缓冲到<code>wr</code>中，然后刷新。</p> <p>这是读取一半的实现方式：</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token keyword">impl</span> Stream <span class="token keyword">for</span> Lines <span class="token punctuation">{</span>
+    <span class="token keyword">type</span> Item <span class="token operator">=</span> BytesMut<span class="token punctuation">;</span>
+    <span class="token keyword">type</span> Error <span class="token operator">=</span> io<span class="token punctuation">::</span>Error<span class="token punctuation">;</span>
+
+    <span class="token keyword">fn</span> <span class="token function">poll</span><span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token keyword">mut</span> <span class="token keyword">self</span><span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> Result<span class="token operator">&lt;</span>Async<span class="token operator">&lt;</span>Option<span class="token operator">&lt;</span><span class="token keyword">Self</span><span class="token punctuation">::</span>Item<span class="token operator">&gt;&gt;</span><span class="token punctuation">,</span> <span class="token keyword">Self</span><span class="token punctuation">::</span>Error<span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+        <span class="token comment">// First, read any new data that might have been received</span>
+        <span class="token comment">// off the socket</span>
+        <span class="token comment">//</span>
+        <span class="token comment">// We track if the socket is closed here and will be used</span>
+        <span class="token comment">// to inform the return value below.</span>
+        <span class="token keyword">let</span> sock_closed <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span><span class="token function">fill_read_buf</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">?</span><span class="token punctuation">.</span><span class="token function">is_ready</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// Now, try finding lines</span>
+        <span class="token keyword">let</span> pos <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span>rd<span class="token punctuation">.</span><span class="token function">windows</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token function">position</span><span class="token punctuation">(</span><span class="token operator">|</span>bytes<span class="token operator">|</span> bytes <span class="token operator">==</span> <span class="token string">b&quot;\r\n&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">if</span> <span class="token keyword">let</span> <span class="token function">Some</span><span class="token punctuation">(</span>pos<span class="token punctuation">)</span> <span class="token operator">=</span> pos <span class="token punctuation">{</span>
+            <span class="token comment">// Remove the line from the read buffer and set it</span>
+            <span class="token comment">// to `line`.</span>
+            <span class="token keyword">let</span> <span class="token keyword">mut</span> line <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span>rd<span class="token punctuation">.</span><span class="token function">split_to</span><span class="token punctuation">(</span>pos <span class="token operator">+</span> <span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token comment">// Drop the trailing \r\n</span>
+            line<span class="token punctuation">.</span><span class="token function">split_off</span><span class="token punctuation">(</span>pos<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token comment">// Return the line</span>
+            <span class="token keyword">return</span> <span class="token function">Ok</span><span class="token punctuation">(</span>Async<span class="token punctuation">::</span><span class="token function">Ready</span><span class="token punctuation">(</span><span class="token function">Some</span><span class="token punctuation">(</span>line<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">if</span> sock_closed <span class="token punctuation">{</span>
+            <span class="token function">Ok</span><span class="token punctuation">(</span>Async<span class="token punctuation">::</span><span class="token function">Ready</span><span class="token punctuation">(</span>None<span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            <span class="token function">Ok</span><span class="token punctuation">(</span>Async<span class="token punctuation">::</span>NotReady<span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">impl</span> Lines <span class="token punctuation">{</span>
+    <span class="token keyword">fn</span> <span class="token function">fill_read_buf</span><span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token keyword">mut</span> <span class="token keyword">self</span><span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> Result<span class="token operator">&lt;</span>Async<span class="token operator">&lt;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">&gt;</span><span class="token punctuation">,</span> io<span class="token punctuation">::</span>Error<span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+        <span class="token keyword">loop</span> <span class="token punctuation">{</span>
+            <span class="token comment">// Ensure the read buffer has capacity.</span>
+            <span class="token comment">//</span>
+            <span class="token comment">// This might result in an internal allocation.</span>
+            <span class="token keyword">self</span><span class="token punctuation">.</span>rd<span class="token punctuation">.</span><span class="token function">reserve</span><span class="token punctuation">(</span><span class="token number">1024</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token comment">// Read data into the buffer.</span>
+            <span class="token comment">//</span>
+            <span class="token comment">// The `read_buf` fn is provided by `AsyncRead`.</span>
+            <span class="token keyword">let</span> n <span class="token operator">=</span> <span class="token function">try_ready!</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>socket<span class="token punctuation">.</span><span class="token function">read_buf</span><span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token keyword">mut</span> <span class="token keyword">self</span><span class="token punctuation">.</span>rd<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">if</span> n <span class="token operator">==</span> <span class="token number">0</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> <span class="token function">Ok</span><span class="token punctuation">(</span>Async<span class="token punctuation">::</span><span class="token function">Ready</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>该示例使用字节包中的BytesMut。 这为在网络环境中处理字节序列提供了一些很好的实用程序。 Stream实现产生的BytesMut值只包含一行。</p> <p>与往常一样，实现返回Async的函数的关键是永远不会返回Async :: NotReady，除非函数实现收到Async :: NotReady本身。 在此示例中，仅当fill_read_buf返回NotReady时才返回NotReady，如果TcpStream :: read_buf返回NotReady，则fill_read_buf仅返回NotReady。</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token keyword">struct</span> Lines <span class="token punctuation">{</span>
+    socket<span class="token punctuation">:</span> TcpStream<span class="token punctuation">,</span>
+    rd<span class="token punctuation">:</span> BytesMut<span class="token punctuation">,</span>
+    wr<span class="token punctuation">:</span> BytesMut<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">impl</span> Lines <span class="token punctuation">{</span>
+    <span class="token keyword">fn</span> <span class="token function">buffer</span><span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token keyword">mut</span> <span class="token keyword">self</span><span class="token punctuation">,</span> line<span class="token punctuation">:</span> <span class="token operator">&amp;</span><span class="token punctuation">[</span>u8<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// Push the line onto the end of the write buffer.</span>
+        <span class="token comment">//</span>
+        <span class="token comment">// The `put` function is from the `BufMut` trait.</span>
+        <span class="token keyword">self</span><span class="token punctuation">.</span>wr<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>line<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">fn</span> <span class="token function">poll_flush</span><span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token keyword">mut</span> <span class="token keyword">self</span><span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> Poll<span class="token operator">&lt;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> io<span class="token punctuation">::</span>Error<span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+        <span class="token comment">// As long as there is buffered data to write, try to write it.</span>
+        <span class="token keyword">while</span> <span class="token operator">!</span><span class="token keyword">self</span><span class="token punctuation">.</span>wr<span class="token punctuation">.</span><span class="token function">is_empty</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment">// Try to write some bytes to the socket</span>
+            <span class="token keyword">let</span> n <span class="token operator">=</span> <span class="token function">try_ready!</span><span class="token punctuation">(</span><span class="token keyword">self</span><span class="token punctuation">.</span>socket<span class="token punctuation">.</span><span class="token function">poll_write</span><span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token keyword">self</span><span class="token punctuation">.</span>wr<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token comment">// As long as the wr is not empty, a successful write should</span>
+            <span class="token comment">// never write 0 bytes.</span>
+            <span class="token function">assert!</span><span class="token punctuation">(</span>n <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token comment">// This discards the first `n` bytes of the buffer.</span>
+            <span class="token keyword">let</span> _ <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span>wr<span class="token punctuation">.</span><span class="token function">split_to</span><span class="token punctuation">(</span>n<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token function">Ok</span><span class="token punctuation">(</span>Async<span class="token punctuation">::</span><span class="token function">Ready</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">fn</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+</code></pre></div><p>调用者通过调用缓冲区对所有行进行排队。 这会将该行附加到内部wr缓冲区。 然后，一旦所有数据排队，调用者就会调用poll_flush，它会对套接字进行实际写入操作。 poll_flush仅在所有排队数据成功写入套接字后才返回Ready。</p> <p>与读取半部分类似，仅在函数实现收到NotReady本身时返回NotReady。</p> <p>Lines编解码器在进程函数中使用如下：</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token keyword">fn</span> <span class="token function">process</span><span class="token punctuation">(</span>socket<span class="token punctuation">:</span> TcpStream<span class="token punctuation">,</span> state<span class="token punctuation">:</span> Arc<span class="token operator">&lt;</span>Mutex<span class="token operator">&lt;</span>Shared<span class="token operator">&gt;&gt;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Wrap the socket with the `Lines` codec that we wrote above.</span>
+    <span class="token keyword">let</span> lines <span class="token operator">=</span> Lines<span class="token punctuation">::</span><span class="token function">new</span><span class="token punctuation">(</span>socket<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token comment">// The first line is treated as the client's name. The client</span>
+    <span class="token comment">// is not added to the set of connected peers until this line</span>
+    <span class="token comment">// is received.</span>
+    <span class="token comment">//</span>
+    <span class="token comment">// We use the `into_future` combinator to extract the first</span>
+    <span class="token comment">// item from the lines stream. `into_future` takes a `Stream`</span>
+    <span class="token comment">// and converts it to a future of `(first, rest)` where `rest`</span>
+    <span class="token comment">// is the original stream instance.</span>
+    <span class="token keyword">let</span> connection <span class="token operator">=</span> lines<span class="token punctuation">.</span><span class="token function">into_future</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token comment">// `into_future` doesn't have the right error type, so map</span>
+        <span class="token comment">// the error to make it work.</span>
+        <span class="token punctuation">.</span><span class="token function">map_err</span><span class="token punctuation">(</span><span class="token operator">|</span><span class="token punctuation">(</span>e<span class="token punctuation">,</span> _<span class="token punctuation">)</span><span class="token operator">|</span> e<span class="token punctuation">)</span>
+        <span class="token comment">// Process the first received line as the client's name.</span>
+        <span class="token punctuation">.</span><span class="token function">and_then</span><span class="token punctuation">(</span><span class="token closure-params"><span class="token punctuation">|</span>(name<span class="token punctuation">,</span> lines)<span class="token punctuation">|</span></span> <span class="token punctuation">{</span>
+            <span class="token keyword">let</span> name <span class="token operator">=</span> <span class="token keyword">match</span> name <span class="token punctuation">{</span>
+                <span class="token function">Some</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> name<span class="token punctuation">,</span>
+                None <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+                    <span class="token comment">// TODO: Handle a client that disconnects</span>
+                    <span class="token comment">// early.</span>
+                    <span class="token function">unimplemented!</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+            <span class="token comment">// TODO: Rest of the process function</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="广播消息"><a href="#广播消息" aria-hidden="true" class="header-anchor">#</a> 广播消息</h2> <p>下一步是实现处理实际聊天功能的连接处理逻辑，即从一个客户端向所有其他客户端广播消息。</p> <p>为了实现这一点，我们将明确地实现一个Future，它接受Lines编解码器实例并处理广播逻辑。 这个逻辑处理：</p> <ul><li>在其消息通道上接收消息并将其写入套接字。</li> <li>从套接字接收消息并将其广播给所有 <code>Peer</code>。</li></ul> <p>完全使用组合器实现此逻辑也是可能的，但需要使用拆分，但尚未涉及。 此外，这提供了一个机会，可以看到如何手动实现一个非平凡的 <code>future</code>。</p> <p>以下是处理连接的广播逻辑的 <code>future</code>定义：</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token keyword">struct</span> Peer <span class="token punctuation">{</span>
+    <span class="token comment">/// Name of the peer. This is the first line received from the client.</span>
+    name<span class="token punctuation">:</span> BytesMut<span class="token punctuation">,</span>
+
+    <span class="token comment">/// The TCP socket wrapped with the `Lines` codec.</span>
+    lines<span class="token punctuation">:</span> Lines<span class="token punctuation">,</span>
+
+    <span class="token comment">/// Handle to the shared chat state.</span>
+    state<span class="token punctuation">:</span> Arc<span class="token operator">&lt;</span>Mutex<span class="token operator">&lt;</span>Shared<span class="token operator">&gt;&gt;</span><span class="token punctuation">,</span>
+
+    <span class="token comment">/// Receive half of the message channel.</span>
+    <span class="token comment">///</span>
+    <span class="token comment">/// This is used to receive messages from peers. When a message is received</span>
+    <span class="token comment">/// off of this `Rx`, it will be written to the socket.</span>
+    rx<span class="token punctuation">:</span> Rx<span class="token punctuation">,</span>
+
+    <span class="token comment">/// Client socket address.</span>
+    <span class="token comment">///</span>
+    <span class="token comment">/// The socket address is used as the key in the `peers` HashMap. The</span>
+    <span class="token comment">/// address is saved so that the `Peer` drop implementation can clean up its</span>
+    <span class="token comment">/// entry.</span>
+    addr<span class="token punctuation">:</span> SocketAddr<span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>并且创建如下<code>Peer</code>实例：</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token keyword">impl</span> Peer <span class="token punctuation">{</span>
+    <span class="token keyword">fn</span> <span class="token function">new</span><span class="token punctuation">(</span>name<span class="token punctuation">:</span> BytesMut<span class="token punctuation">,</span>
+           state<span class="token punctuation">:</span> Arc<span class="token operator">&lt;</span>Mutex<span class="token operator">&lt;</span>Shared<span class="token operator">&gt;&gt;</span><span class="token punctuation">,</span>
+           lines<span class="token punctuation">:</span> Lines<span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> Peer
+    <span class="token punctuation">{</span>
+        <span class="token comment">// Get the client socket address</span>
+        <span class="token keyword">let</span> addr <span class="token operator">=</span> lines<span class="token punctuation">.</span>socket<span class="token punctuation">.</span><span class="token function">peer_addr</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">unwrap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// Create a channel for this peer</span>
+        <span class="token keyword">let</span> <span class="token punctuation">(</span>tx<span class="token punctuation">,</span> rx<span class="token punctuation">)</span> <span class="token operator">=</span> mpsc<span class="token punctuation">::</span><span class="token function">unbounded</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// Add an entry for this `Peer` in the shared state map.</span>
+        state<span class="token punctuation">.</span><span class="token function">lock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">unwrap</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token punctuation">.</span>peers<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>addr<span class="token punctuation">,</span> tx<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        Peer <span class="token punctuation">{</span>
+            name<span class="token punctuation">,</span>
+            lines<span class="token punctuation">,</span>
+            state<span class="token punctuation">,</span>
+            rx<span class="token punctuation">,</span>
+            addr<span class="token punctuation">,</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>为其他 <code>Peer</code>创建mpsc通道，以将其消息发送到此新创建的 <code>Peer</code>。 在创建信道之后，将发送半部分插入 <code>Peer</code>映射中。 此条目在Peer的drop实现中删除。</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token keyword">impl</span> Drop <span class="token keyword">for</span> Peer <span class="token punctuation">{</span>
+    <span class="token keyword">fn</span> <span class="token function">drop</span><span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token keyword">mut</span> <span class="token keyword">self</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">self</span><span class="token punctuation">.</span>state<span class="token punctuation">.</span><span class="token function">lock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">unwrap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>peers
+            <span class="token punctuation">.</span><span class="token function">remove</span><span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token keyword">self</span><span class="token punctuation">.</span>addr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>这是实现</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token keyword">impl</span> Future <span class="token keyword">for</span> Peer <span class="token punctuation">{</span>
+    <span class="token keyword">type</span> Item <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">type</span> Error <span class="token operator">=</span> io<span class="token punctuation">::</span>Error<span class="token punctuation">;</span>
+
+    <span class="token keyword">fn</span> <span class="token function">poll</span><span class="token punctuation">(</span><span class="token operator">&amp;</span><span class="token keyword">mut</span> <span class="token keyword">self</span><span class="token punctuation">)</span> <span class="token punctuation">-&gt;</span> Poll<span class="token operator">&lt;</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> io<span class="token punctuation">::</span>Error<span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+        <span class="token comment">// Receive all messages from peers.</span>
+        <span class="token keyword">loop</span> <span class="token punctuation">{</span>
+            <span class="token comment">// Polling an `UnboundedReceiver` cannot fail, so `unwrap`</span>
+            <span class="token comment">// here is safe.</span>
+            <span class="token keyword">match</span> <span class="token keyword">self</span><span class="token punctuation">.</span>rx<span class="token punctuation">.</span><span class="token function">poll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">unwrap</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                Async<span class="token punctuation">::</span><span class="token function">Ready</span><span class="token punctuation">(</span><span class="token function">Some</span><span class="token punctuation">(</span>v<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+                    <span class="token comment">// Buffer the line. Once all lines are buffered,</span>
+                    <span class="token comment">// they will be flushed to the socket (right</span>
+                    <span class="token comment">// below).</span>
+                    <span class="token keyword">self</span><span class="token punctuation">.</span>lines<span class="token punctuation">.</span><span class="token function">buffer</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>v<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                _ <span class="token operator">=&gt;</span> <span class="token keyword">break</span><span class="token punctuation">,</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// Flush the write buffer to the socket</span>
+        <span class="token keyword">let</span> _ <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span>lines<span class="token punctuation">.</span><span class="token function">poll_flush</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">?</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// Read new lines from the socket</span>
+        <span class="token keyword">while</span> <span class="token keyword">let</span> Async<span class="token punctuation">::</span><span class="token function">Ready</span><span class="token punctuation">(</span>line<span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span>lines<span class="token punctuation">.</span><span class="token function">poll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">?</span> <span class="token punctuation">{</span>
+            <span class="token function">println!</span><span class="token punctuation">(</span><span class="token string">&quot;Received line ({:?}) : {:?}&quot;</span><span class="token punctuation">,</span> <span class="token keyword">self</span><span class="token punctuation">.</span>name<span class="token punctuation">,</span> line<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">if</span> <span class="token keyword">let</span> <span class="token function">Some</span><span class="token punctuation">(</span>message<span class="token punctuation">)</span> <span class="token operator">=</span> line <span class="token punctuation">{</span>
+                <span class="token comment">// Append the peer's name to the front of the line:</span>
+                <span class="token keyword">let</span> <span class="token keyword">mut</span> line <span class="token operator">=</span> <span class="token keyword">self</span><span class="token punctuation">.</span>name<span class="token punctuation">.</span><span class="token function">clone</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                line<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">&quot;: &quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                line<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>message<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                line<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span><span class="token string">&quot;\r\n&quot;</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+                <span class="token comment">// We're using `Bytes`, which allows zero-copy clones</span>
+                <span class="token comment">// (by storing the data in an Arc internally).</span>
+                <span class="token comment">//</span>
+                <span class="token comment">// However, before cloning, we must freeze the data.</span>
+                <span class="token comment">// This converts it from mutable -&gt; immutable,</span>
+                <span class="token comment">// allowing zero copy cloning.</span>
+                <span class="token keyword">let</span> line <span class="token operator">=</span> line<span class="token punctuation">.</span><span class="token function">freeze</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+                <span class="token comment">// Now, send the line to all other peers</span>
+                <span class="token keyword">for</span> <span class="token punctuation">(</span>addr<span class="token punctuation">,</span> tx<span class="token punctuation">)</span> <span class="token keyword">in</span> <span class="token operator">&amp;</span><span class="token keyword">self</span><span class="token punctuation">.</span>state<span class="token punctuation">.</span><span class="token function">lock</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">unwrap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>peers <span class="token punctuation">{</span>
+                    <span class="token comment">// Don't send the message to ourselves</span>
+                    <span class="token keyword">if</span> <span class="token operator">*</span>addr <span class="token operator">!=</span> <span class="token keyword">self</span><span class="token punctuation">.</span>addr <span class="token punctuation">{</span>
+                        <span class="token comment">// The send only fails if the rx half has been</span>
+                        <span class="token comment">// dropped, however this is impossible as the</span>
+                        <span class="token comment">// `tx` half will be removed from the map</span>
+                        <span class="token comment">// before the `rx` is dropped.</span>
+                        tx<span class="token punctuation">.</span><span class="token function">unbounded_send</span><span class="token punctuation">(</span>line<span class="token punctuation">.</span><span class="token function">clone</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">unwrap</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                <span class="token comment">// EOF was reached. The remote client has disconnected.</span>
+                <span class="token comment">// There is nothing more to do.</span>
+                <span class="token keyword">return</span> <span class="token function">Ok</span><span class="token punctuation">(</span>Async<span class="token punctuation">::</span><span class="token function">Ready</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// As always, it is important to not just return `NotReady`</span>
+        <span class="token comment">// without ensuring an inner future also returned `NotReady`.</span>
+        <span class="token comment">//</span>
+        <span class="token comment">// We know we got a `NotReady` from either `self.rx` or</span>
+        <span class="token comment">// `self.lines`, so the contract is respected.</span>
+        <span class="token function">Ok</span><span class="token punctuation">(</span>Async<span class="token punctuation">::</span>NotReady<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>剩下的就是连接刚刚实施的Peer <code>future</code>。 为此，将客户端连接任务（在<code>process</code>函数中定义）扩展为使用Peer。</p> <div class="language-rust extra-class"><pre class="language-rust"><code><span class="token keyword">let</span> connection <span class="token operator">=</span> lines<span class="token punctuation">.</span><span class="token function">into_future</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">map_err</span><span class="token punctuation">(</span><span class="token operator">|</span><span class="token punctuation">(</span>e<span class="token punctuation">,</span> _<span class="token punctuation">)</span><span class="token operator">|</span> e<span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">and_then</span><span class="token punctuation">(</span><span class="token closure-params"><span class="token punctuation">|</span>(name<span class="token punctuation">,</span> lines)<span class="token punctuation">|</span></span> <span class="token punctuation">{</span>
+        <span class="token comment">// If `name` is `None`, then the client disconnected without</span>
+        <span class="token comment">// actually sending a line of data.</span>
+        <span class="token comment">//</span>
+        <span class="token comment">// Since the connection is closed, there is no further work</span>
+        <span class="token comment">// that we need to do. So, we just terminate processing by</span>
+        <span class="token comment">// returning `future::ok()`.</span>
+        <span class="token comment">//</span>
+        <span class="token comment">// The problem is that only a single future type can be</span>
+        <span class="token comment">// returned from a combinator closure, but we want to</span>
+        <span class="token comment">// return both `future::ok()` and `Peer` (below).</span>
+        <span class="token comment">//</span>
+        <span class="token comment">// This is a common problem, so the `futures` crate solves</span>
+        <span class="token comment">// this by providing the `Either` helper enum that allows</span>
+        <span class="token comment">// creating a single return type that covers two concrete</span>
+        <span class="token comment">// future types.</span>
+        <span class="token keyword">let</span> name <span class="token operator">=</span> <span class="token keyword">match</span> name <span class="token punctuation">{</span>
+            <span class="token function">Some</span><span class="token punctuation">(</span>name<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> name<span class="token punctuation">,</span>
+            None <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+                <span class="token comment">// The remote client closed the connection without</span>
+                <span class="token comment">// sending any data.</span>
+                <span class="token keyword">return</span> Either<span class="token punctuation">::</span><span class="token function">A</span><span class="token punctuation">(</span>future<span class="token punctuation">::</span><span class="token function">ok</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        <span class="token function">println!</span><span class="token punctuation">(</span><span class="token string">&quot;`{:?}` is joining the chat&quot;</span><span class="token punctuation">,</span> name<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// Create the peer.</span>
+        <span class="token comment">//</span>
+        <span class="token comment">// This is also a future that processes the connection, only</span>
+        <span class="token comment">// completing when the socket closes.</span>
+        <span class="token keyword">let</span> peer <span class="token operator">=</span> Peer<span class="token punctuation">::</span><span class="token function">new</span><span class="token punctuation">(</span>
+            name<span class="token punctuation">,</span>
+            state<span class="token punctuation">,</span>
+            lines<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// Wrap `peer` with `Either::B` to make the return type fit.</span>
+        Either<span class="token punctuation">::</span><span class="token function">B</span><span class="token punctuation">(</span>peer<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token comment">// Task futures have an error of type `()`, this ensures we handle</span>
+    <span class="token comment">// the error. We do this by printing the error to STDOUT.</span>
+    <span class="token punctuation">.</span><span class="token function">map_err</span><span class="token punctuation">(</span><span class="token closure-params"><span class="token punctuation">|</span>e<span class="token punctuation">|</span></span> <span class="token punctuation">{</span>
+        <span class="token function">println!</span><span class="token punctuation">(</span><span class="token string">&quot;connection error = {:?}&quot;</span><span class="token punctuation">,</span> e<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><p>除了添加Peer之外，还会处理name == None。 在这种情况下，远程客户端在识别自身之前终止。</p> <p>返回多个 <code>future</code>（<code>name == None</code> handler和 <code>Peer</code>）通过将返回的 <code>future</code>包装在Either中来处理。 要么是枚举，要为每个变体接受不同的 <code>future</code>类型。 这允许返回多个 <code>future</code>类型而不到达<code>trait</code>对象。</p></div> <div class="page-edit"><div class="edit-link"><a href="https://github.com/tokio-zh/tokio-zh/edit/master/docs/document/going-deeper/chat.md" target="_blank" rel="noopener noreferrer">在 GitHub 上编辑此页</a> <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></div> <div class="last-updated"><span class="prefix">上次更新: </span> <span class="time">11/4/2018, 4:39:08 AM</span></div></div> <div class="page-nav"><p class="inner"><span class="prev">
+        ←
+        <a href="/document/going-deeper/io.html" class="prev">
+          Tokio与I/O
+        </a></span> <span class="next"><a href="/document/going-deeper/timers.html">
+          Timers
+        </a>
+        →
+      </span></p></div> <div class="bsa-cpc-wrapper"><div class="bsa-cpc"></div></div></div> <!----></div></div>
+    <script src="/assets/js/app.8bade797.js" defer></script><script src="/assets/js/28.f007bc19.js" defer></script>
+  </body>
+</html>
